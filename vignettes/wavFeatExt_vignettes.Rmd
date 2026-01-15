@@ -1,8 +1,8 @@
 ---
-title: "wavFeatExt: Wavelet-based Feature Extraction for Copy Number Alteration Data"
+title: "wavFeatExt: Wavelet-based Feature Extraction for Copy-number Alteration Data"
 author:
-  - name: "Maharani Ahsani Ummi"
-  - name: "Arief Gusnanto"
+- name: "Maharani Ahsani Ummi"
+- name: "Arief Gusnanto"
 package: wavFeatExt
 output:
   BiocStyle::html_document:
@@ -14,13 +14,15 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment  = "#",
+  collapse  = TRUE,
+  comment   = "#",
   fig.align = "center",
   fig.width = 7,
-  fig.height = 4
+  fig.height = 4,
+  message   = FALSE,
+  warning   = FALSE
 )
 ```
 
@@ -53,18 +55,8 @@ This vignette gives a short, reproducible example of the wavFeatExt workflow on 
 For any query about the package, please contact the maintainer, Maharani A. Ummi (maharaniahsani@itb.ac.id).
 
 ## Getting Started
-Once the package is available on Bioconductor, it can be installed in the usual way:
-
-```{r , eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("wavFeatExt")
-
-```
-Then load the package:
+This vignette assumes that wavFeatExt has already been installed (e.g., from Bioconductor once available).
 ```{r}
-install.packages("C:/Users/maharaniau/OneDrive - University of Leeds/Research/R Programming/Packages/wavFeatExt5/wavFeatExt/wavFeatExt_1.1.4.tar.gz",type="source", repos = NULL)
 library(wavFeatExt)
 ```
 
@@ -322,4 +314,9 @@ If you also use PCA/ICA, you can similarly call:
 ```{r}
 class(res_pcaica) <- "classif.pcaica"
 plot(res_pcaica, type = "CE")   # or type = "AUC"
+```
+
+## Session Infoemation
+```{r}
+sessionInfo()
 ```

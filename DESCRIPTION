@@ -1,20 +1,21 @@
 Package: wavFeatExt
 Type: Package
 Title: Wavelet-based Feature Extraction for Copy-number Alteration Data
-Version: 1.1.5
+Version: 0.99.0
 Authors@R: c(
     person("Maharani Ahsani", "Ummi",
            email = "maharani.au@itb.ac.id",
-           role = c("aut", "cre")),
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0000-0000-0000")),
     person("Arief", "Gusnanto",
            role = "aut")
   )
-Description: Provides tools for simulating copy-number alteration (CNA) profiles, 
-    applying a non-decimated Haar wavelet transform to genomic signals, and extracting 
-    wavelet-derived features for use in supervised learning. Multiple machine learning 
-    methods including Lasso and elastic-net regularisation, random forest, partial 
-    least squares, neural networks and k-nearest neighbours are implemented to train 
-    predictive models from genomic feature vectors. The workflow enables end-to-end 
+Description: Provides tools for simulating copy-number alteration (CNA) profiles,
+    applying a non-decimated Haar wavelet transform to genomic signals, and extracting
+    wavelet-derived features for use in supervised learning. Multiple machine learning
+    methods including lasso and elastic-net regularisation, random forest, partial
+    least squares, neural networks and k-nearest neighbours are implemented to train
+    predictive models from genomic feature vectors. The workflow enables end-to-end
     analysis from CNA simulation to feature extraction and classification.
 License: GPL-3
 Encoding: UTF-8
@@ -36,20 +37,21 @@ Imports:
     ica,
     stats,
     graphics,
-    utils
+    utils,
+    class
 Suggests:
+    BiocStyle,
     knitr,
     rmarkdown,
-    BiocStyle,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 biocViews:
     CopyNumberVariation,
     GenomicVariation,
-    Wavelet,
     FeatureExtraction,
     Classification,
-    MachineLearning,
-    Software
+URL: https://github.com/maharaniau/wavFeatExt
+BugReports: https://github.com/maharaniau/wavFeatExt/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Config/testthat/edition: 3

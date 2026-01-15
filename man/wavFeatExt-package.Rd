@@ -2,33 +2,27 @@
 \alias{wavFeatExt-package}
 \alias{wavFeatExt}
 \docType{package}
-\title{
-\packageTitle{wavFeatExt}
-}
-\description{This package contains utility functions to perform non-decimated Haar wavelet transformation and managing the extracted features for prediction.
-\packageDescription{wavFeatExt}
-}
-\details{
+\title{wavFeatExt: Wavelet-based Feature Extraction for Copy-number Alteration Data}
 
-The DESCRIPTION file:
-\packageDESCRIPTION{wavFeatExt}
-\packageIndices{wavFeatExt}
-~~ An overview of how to use the package, including the most important functions ~~
+\description{
+Utility functions for non-decimated Haar wavelet transformation of copy-number alteration (CNA) profiles, feature extraction, and supervised learning workflows.
 }
+
+\details{
+The package provides tools for simulating CNA profiles, performing segmentation, extracting wavelet-derived features (detail and scaling coefficients) at multiple scales, and fitting classifiers using wavelet features or PCA/ICA features.
+}
+
 \author{
 \packageAuthor{wavFeatExt}
 
 Maintainer: \packageMaintainer{wavFeatExt}
 }
-\references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
-\keyword{ package }
+
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+\itemize{
+  \item \code{\link{sim.CNA}} for simulating CNA profiles.
+  \item \code{\link{wavFeatExt}} for wavelet-based feature extraction.
+  \item \code{\link{classif.wavFeatExt}} for classification using wavelet features.
 }
-\examples{
-~~ simple examples of the most important functions ~~
 }
+\keyword{package}
