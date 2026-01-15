@@ -1,0 +1,18 @@
+export(CBS, classif.pcaica, classif.wavFeatExt, get.ica, get.pca, nhwt,
+       seg, sim.CNA, wavFeatExt)
+
+S3method(plot, classif.pcaica)
+S3method(plot, classif.wavFeatExt)
+S3method(plot, nhwt)
+
+importFrom(DNAcopy, CNA, segment)
+importFrom(MASS, mvrnorm)
+importFrom(glmnet, cv.glmnet, assess.glmnet)
+importFrom(randomForest, randomForest)
+importFrom(neuralnet, neuralnet, compute)
+importFrom(caret, knn3, plsda)
+importFrom(pROC, roc, auc)
+importFrom(ica, icafast)
+importFrom(miscTools, colMedians)
+importFrom(stats, prcomp)
+importFrom(wavethresh, wd, accessD, accessC)

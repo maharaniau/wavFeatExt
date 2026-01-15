@@ -1,0 +1,325 @@
+---
+title: "wavFeatExt: Wavelet-based Feature Extraction for Copy Number Alteration Data"
+author:
+  - name: "Maharani Ahsani Ummi"
+  - name: "Arief Gusnanto"
+package: wavFeatExt
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to wavFeatExt}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#",
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4
+)
+```
+
+# Introduction
+
+The **`wavFeatExt`** package implements the methodology proposed by Ummi et al. (2022) for feature extraction from copy-number alteration (CNA) profiles using the non-decimated Haar wavelet transform (NHWT). The main goal is to represent genome-wide CNA signals by multiscale wavelet coefficients that are more suitable for prediction than the raw, highly correlated CNA values.
+
+In typical CNA studies, each sample is measured at thousands of genomic windows (or genes), and neighbouring windows are strongly correlated because CNAs occur in contiguous segments. Directly fitting supervised learning models on these correlated predictors can lead to unstable variable selection and suboptimal classification performance. Wavelet-based feature extraction addresses this by:
+
+- decomposing each CNA profile into detail coefficients (local differences, capturing gains/losses at multiple scales), and
+
+- scaling coefficients (local averages at multiple scales),
+
+which together provide a compact, multiresolution representation of the genome-wide CNA landscape.
+
+The package provides:
+
+- simulation of block-correlated CNA data (**`sim.CNA`**),
+
+- segmentation using circular binary segmentation (**`seg`**, **`CBS`**),
+
+- wavelet-based feature extraction (**`wavFeatExt`**),
+
+- PCA/ICA feature extraction for comparison (**`get.pca`**, **`get.ica`**), and
+
+- classification wrappers for several machine-learning methods (**`classif.wavFeatExt`**, **`classif.pcaica`**).
+
+This vignette gives a short, reproducible example of the wavFeatExt workflow on simulated CNA data, closely mirroring the analyses described in the original paper.
+
+For any query about the package, please contact the maintainer, Maharani A. Ummi (maharaniahsani@itb.ac.id).
+
+## Getting Started
+Once the package is available on Bioconductor, it can be installed in the usual way:
+
+```{r , eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("wavFeatExt")
+
+```
+Then load the package:
+```{r}
+install.packages("C:/Users/maharaniau/OneDrive - University of Leeds/Research/R Programming/Packages/wavFeatExt5/wavFeatExt/wavFeatExt_1.1.4.tar.gz",type="source", repos = NULL)
+library(wavFeatExt)
+```
+
+## Input data structure
+
+Most functions in wavFeatExt expect CNA data in the form of a numeric matrix
+
+- rows = samples (patients),
+
+- columns = genomic locations (windows or genes),
+
+or a **list** of such matrices when multiple data sets (e.g. repeated simulations) are analysed.
+
+For real data, a typical preprocessing pipeline is:
+
+1. Align reads and compute depth-of-coverage per genomic window.
+2. Normalise coverage (e.g. GC-content, tumour purity).
+3. Segment each profile using circular binary segmentation (CBS).
+
+In this vignette we will work with simulated, already segmented data from sim.CNA, which mimics these characteristics.
+
+# Simulation
+
+## Simulating CNA data
+
+The function **`sim.CNA()`** generates segmented CNA profiles for two tumour subtypes under a multivariate normal model with a block correlation structure, similar to the simulation study in Ummi et al. (2022).
+
+
+You can also embed plots, for example:
+
+```{r echo=T, results='hide'}
+# One simulated data set with moderate dimension
+
+sim_dat <- sim.CNA(
+n.obs     = 80,    # number of samples
+p         = 512,   # number of genomic locations
+n.sim     = 1,     # number of simulated data sets
+effect.diff = 1,   # mean difference between subtypes
+n.block   = 32
+)
+
+length(sim_dat)
+dim(sim_dat[[1]])
+
+```
+
+**`sim_dat`** is a list of length **`n.sim`**; each element is an **`n.obs x p`** matrix of segmented CNA values. By construction, the first half of the rows correspond to subtype 1, and the second half to subtype 2.
+
+We now create a binary response factor:
+
+```{r echo=T, results='hide'}
+X <- sim_dat[[1]]
+n <- nrow(X)
+
+y <- factor(rep(c("Subtype1", "Subtype2"), each = n / 2))
+table(y)
+
+```
+
+
+## Wavelet-based feature extraction
+
+The core function **`wavFeatExt()`** applies the non-decimated Haar wavelet transform across genomic locations for each sample and returns either detail or scaling coefficients at all available scales.
+
+```{r echo=T, results='hide'}
+# Extract wavelet detail coefficients (differences)
+
+det_coef <- wavFeatExt(sim_dat, type = "detail")
+
+# Extract wavelet scaling coefficients (averages)
+
+sca_coef <- wavFeatExt(sim_dat, type = "scaling")
+
+length(det_coef)          # number of simulated data sets
+length(det_coef[[1]])     # number of scales for detail coefficients
+dim(det_coef[[1]][[1]])   # samples x windows at the first scale
+
+```
+For each simulated data set:
+
+**`det_coef[[i]][[m]]`** is the matrix of detail coefficients at scale m,
+
+**`sca_coef[[i]][[m]]`** is the corresponding matrix of scaling coefficients.
+
+Each matrix has the same dimension as the original CNA data (**`n.obs x p`**). At fine scales, detail coefficients represent differences between nearby windows; at coarser scales, they summarise changes over longer genomic regions.
+
+
+## Visualising wavelet coefficients for a single profile
+
+For illustrative purposes, we can inspect the NHWT coefficients of a single CNA profile using the legacy helper **`nhwt()`** and **`plot.nhwt()`**. This is a convenient way to see how the transform behaves on one sample.
+
+```{r}
+
+# Take one sample (row) from the simulated data
+
+x1 <- X[1, ]
+
+# Non-decimated Haar transform (detail coefficients)
+
+nh_detail <- nhwt(x1, type = "detail")
+nh_scaling <- nhwt(x1, type = "scaling")
+
+# Plot coefficients by scale
+plot(x1, type="l", xlab="", ylab="", main="Simulated CNA data")
+plot(nh_detail, coef = "detail", type = "by.level", scale = "all")
+plot(nh_scaling, coef = "scaling", type = "by.level", scale = "all")
+
+```
+
+## Classification using wavelet features
+
+After extracting wavelet coefficients, the **`classif.wavFeatExt()`** function provides a unified interface to several machine-learning classifiers implemented in **`glmnet`**, **`randomForest`**, **`nnet`**, **`pls`**, and **`class`**.
+The function accepts:
+
+- **`data`** – a list of CNA matrices or simulated CNA output
+
+- **`y`** – a factor of class labels
+
+- **`det`** – list of wavelet detail coefficients
+
+- **`sca`** – list of wavelet scaling coefficients
+
+- **`method`** – **`"lasso"`**, **`"elnet"`**, **`"RF"`**, **`"NN"`**, **`"PLS"`**, or **`"KNN"`**
+
+- **`k`** – number of folds for cross-validation
+
+- **`ite`** – number of datasets to evaluate (defaults to all)
+
+Below is an example classification based on wavelet detail coefficients:
+
+```{r echo=T, results='hide', message=FALSE}
+
+# Binary response (for example, first 40 vs last 40 samples)
+y <- factor(c(rep("Group1", 40), rep("Group2", 40)))
+
+# Perform classification using Lasso
+res_lasso <- classif.wavFeatExt(sim_dat, y, det=det_coef, sca=sca_coef,
+                          method = "lasso", k = 5, ite = 2)
+
+```
+The output typically contains:
+  
+- Numeric matrix of cross-validated misclassification errors,
+
+- Numeric matrix of cross-validated areas under the ROC curve,
+
+- the classification method used.
+
+To compare different classification methods:
+  
+```{r echo=T, results='hide', message=FALSE}
+res_RF  <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
+                              method="RF",  k=5)
+res_NN  <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
+                              method="NN",  k=5)
+res_PLS <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
+                              method="PLS", k=5)
+
+c(Lasso = res_lasso$err,
+  RF    = res_RF$err,
+  NN    = res_NN$err,
+  PLS   = res_PLS$err)
+
+```
+
+Depending on the simulation settings (**`effect.diff`**, correlation strength), wavelet features often outperform PCA/ICA because they preserve local, multi-scale genomic changes that drive subtype differences.
+
+# Comparison with PCA/ICA
+
+To demonstrate this, we extract PCA and ICA features using:
+  
+```{r echo=T, results='hide', message=FALSE}
+# Obtain PCA/ICA features
+
+pca_feat <- get.pca(sim_dat, npc = 10)
+ica_feat <- get.ica(sim_dat, ncomp = 10)
+
+# Classification using PCA features
+
+res_pca <- classif.pcaica(
+  data = pca_feat,
+  y    = y,
+  method = "lasso",
+  k = 5
+)
+
+# Classification using ICA features
+
+res_ica <- classif.pcaica(
+  data = ica_feat,
+  y    = y,
+  method = "lasso",
+  k = 5
+)
+
+c(PCA = res_pca$err,
+  ICA = res_ica$err,
+  Wavelet = res_lasso$err)
+
+
+```
+
+
+# Plotting classification error and AUC
+
+The object returned by **`classif.wavFeatExt()`** contains two matrices:
+  
+  **`CE`** – misclassification error for each feature set (detail/scaling scales and segmented data),
+
+**`AUC`** – corresponding area under the ROC curve (AUC).
+
+The package provides an S3 method **`plot.classif.wavFeatExt()`** to visualise these as boxplots across replications (**`ite`**).
+
+```{r}
+## Wavelet features (detail + scaling)
+
+det_coef <- wavFeatExt(sim_dat, type = "detail")
+sca_coef <- wavFeatExt(sim_dat, type = "scaling")
+
+set.seed(1)
+res_wav <- classif.wavFeatExt(
+  data  = sim_dat,
+  y     = y,
+  det   = det_coef,
+  sca   = sca_coef,
+  method = "lasso",
+  k      = 5,
+  ite    = 2    # number of CV repetitions
+)
+
+
+## Misclassification error per scale (and segmented baseline)
+
+plot(res_wav, type = "CE", ylab = "Misclassification error")
+
+## AUC per scale (and segmented baseline)
+
+plot(res_wav, type = "AUC", ylab = "Area under ROC curve")
+
+```
+
+Interpretation:
+  
+  - Each box corresponds to one feature set:
+  D1, D2, … = detail scales, S1, S2, … = scaling scales, seg = original segmented data.
+
+- The boxes summarise the distribution of CE/AUC over ite repetitions.
+
+- The red dashed line is the median performance of the segmented/original data (seg),
+
+- The blue dotted line marks the best median performance among all feature sets (highest AUC or lowest CE).
+
+If you also use PCA/ICA, you can similarly call:
+  
+```{r}
+class(res_pcaica) <- "classif.pcaica"
+plot(res_pcaica, type = "CE")   # or type = "AUC"
+```

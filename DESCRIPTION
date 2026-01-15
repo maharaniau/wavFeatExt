@@ -1,0 +1,55 @@
+Package: wavFeatExt
+Type: Package
+Title: Wavelet-based Feature Extraction for Copy-number Alteration Data
+Version: 1.1.5
+Authors@R: c(
+    person("Maharani Ahsani", "Ummi",
+           email = "maharani.au@itb.ac.id",
+           role = c("aut", "cre")),
+    person("Arief", "Gusnanto",
+           role = "aut")
+  )
+Description: Provides tools for simulating copy-number alteration (CNA) profiles, 
+    applying a non-decimated Haar wavelet transform to genomic signals, and extracting 
+    wavelet-derived features for use in supervised learning. Multiple machine learning 
+    methods including Lasso and elastic-net regularisation, random forest, partial 
+    least squares, neural networks and k-nearest neighbours are implemented to train 
+    predictive models from genomic feature vectors. The workflow enables end-to-end 
+    analysis from CNA simulation to feature extraction and classification.
+License: GPL-3
+Encoding: UTF-8
+LazyData: false
+Depends:
+    R (>= 4.3)
+Imports:
+    DNAcopy,
+    wavethresh,
+    MASS,
+    randomForest,
+    glmnet,
+    pROC,
+    neuralnet,
+    e1071,
+    miscTools,
+    class,
+    caret,
+    ica,
+    stats,
+    graphics,
+    utils
+Suggests:
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    testthat (>= 3.0.0)
+biocViews:
+    CopyNumberVariation,
+    GenomicVariation,
+    Wavelet,
+    FeatureExtraction,
+    Classification,
+    MachineLearning,
+    Software
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
