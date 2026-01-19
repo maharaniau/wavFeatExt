@@ -4,7 +4,7 @@ Title: Wavelet-based Feature Extraction for Copy-number Alteration Data
 Version: 0.99.0
 Authors@R: c(
     person("Maharani Ahsani", "Ummi",
-           email = "maharani.au@itb.ac.id",
+           email = "maharaniahsani@itb.ac.id",
            role = c("aut", "cre"),
            comment = c(ORCID = "0000-0000-0000-0000")),
     person("Arief", "Gusnanto",
