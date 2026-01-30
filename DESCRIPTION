@@ -5,8 +5,7 @@ Version: 0.99.0
 Authors@R: c(
     person("Maharani Ahsani", "Ummi",
            email = "maharaniahsani@itb.ac.id",
-           role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000")),
+           role = c("aut", "cre")),
     person("Arief", "Gusnanto",
            role = "aut")
   )
