@@ -215,11 +215,6 @@ res_NN  <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
 res_PLS <- classif.wavFeatExt(sim_dat, y, det = det_coef, sca = sca_coef,
                               method="PLS", k=5)
 
-c(Lasso = res_lasso$err,
-  RF    = res_RF$err,
-  NN    = res_NN$err,
-  PLS   = res_PLS$err)
-
 ```
 
 Depending on the simulation settings (**`effect.diff`**, correlation strength), wavelet features often outperform PCA/ICA because they preserve local, multi-scale genomic changes that drive subtype differences.
