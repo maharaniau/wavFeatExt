@@ -37,7 +37,9 @@ Imports:
     stats,
     graphics,
     utils,
-    class
+    class,
+    pls,
+    matrixStats
 Suggests:
     BiocStyle,
     knitr,
@@ -52,5 +54,5 @@ biocViews:
 URL: https://github.com/maharaniau/wavFeatExt
 BugReports: https://github.com/maharaniau/wavFeatExt/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3

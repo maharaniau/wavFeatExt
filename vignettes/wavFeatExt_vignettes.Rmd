@@ -231,31 +231,19 @@ To demonstrate this, we extract PCA and ICA features using:
 ```{r echo=T, results='hide', message=FALSE}
 # Obtain PCA/ICA features
 
-pca_feat <- get.pca(sim_dat, npc = 10)
-ica_feat <- get.ica(sim_dat, ncomp = 10)
+pca_feat <- get.pca(sim_dat, k = 10)
+ica_feat <- get.ica(sim_dat, k = 10)
 
-# Classification using PCA features
+# Classification using PCA and ICA features
 
-res_pca <- classif.pcaica(
-  data = pca_feat,
+res_pcaica <- classif.pcaica(
+  data = sim_dat,
   y    = y,
+  pca = pca_feat,
+  ica = ica_feat,
   method = "lasso",
   k = 5
 )
-
-# Classification using ICA features
-
-res_ica <- classif.pcaica(
-  data = ica_feat,
-  y    = y,
-  method = "lasso",
-  k = 5
-)
-
-c(PCA = res_pca$err,
-  ICA = res_ica$err,
-  Wavelet = res_lasso$err)
-
 
 ```
 
@@ -271,30 +259,14 @@ The object returned by **`classif.wavFeatExt()`** contains two matrices:
 The package provides an S3 method **`plot.classif.wavFeatExt()`** to visualise these as boxplots across replications (**`ite`**).
 
 ```{r}
-## Wavelet features (detail + scaling)
-
-det_coef <- wavFeatExt(sim_dat, type = "detail")
-sca_coef <- wavFeatExt(sim_dat, type = "scaling")
-
-set.seed(1)
-res_wav <- classif.wavFeatExt(
-  data  = sim_dat,
-  y     = y,
-  det   = det_coef,
-  sca   = sca_coef,
-  method = "lasso",
-  k      = 5,
-  ite    = 2    # number of CV repetitions
-)
-
 
 ## Misclassification error per scale (and segmented baseline)
 
-plot(res_wav, type = "CE", ylab = "Misclassification error")
+plot(res_PLS, type = "CE", ylab = "Misclassification error")
 
 ## AUC per scale (and segmented baseline)
 
-plot(res_wav, type = "AUC", ylab = "Area under ROC curve")
+plot(res_PLS, type = "AUC", ylab = "Area under ROC curve")
 
 ```
 

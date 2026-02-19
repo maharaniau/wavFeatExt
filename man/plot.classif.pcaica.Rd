@@ -94,10 +94,10 @@ res <- classif.pcaica(sim.dat10, y, pca, ica,
                       method = "lasso", k = 5)
 
 ## Plot classification error (all feature types)
-plot.classif.pcaica(res, type = "CE")
+plot(res, type = "CE")
 
 ## Plot AUC, PCA features + segmented only
-plot.classif.pcaica(res, type = "AUC", d.type = "PCA")
+plot(res, type = "AUC", d.type = "PCA")
 ## End(Not run)
 }
 \keyword{hplot}

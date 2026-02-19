@@ -89,10 +89,10 @@ res <- classif.wavFeatExt(sim.dat10, y,
                           method = "lasso", k = 5)
 
 ## Plot classification error for all feature sets
-plot.classif.wavFeatExt(res, type = "CE")
+plot(res, type = "CE")
 
 ## Plot AUC for all feature sets
-plot.classif.wavFeatExt(res, type = "AUC")
+plot(res, type = "AUC")
 ## End(Not run)
 }
 \keyword{hplot}

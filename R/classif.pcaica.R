@@ -1,6 +1,6 @@
 classif.pcaica <- function(data, y, pca, ica,
                            method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
-                           k = 5L,
+                           k = 5,
                            ite = length(data)) {
   # Classification on PCA/ICA-based features using multiple ML methods
   # data : list of matrices (rows = obs, cols = vars)
@@ -16,9 +16,7 @@ classif.pcaica <- function(data, y, pca, ica,
   if (!is.list(data) || length(data) < 1L) {
     stop("'data' must be a non-empty list of matrices.")
   }
-  if (!is.matrix(data[[1]])) {
-    stop("'data[[1]]' must be a matrix (rows = observations, cols = variables).")
-  }
+
   
   n.data <- nrow(data[[1]])
   if (n.data < k) {
@@ -177,7 +175,7 @@ classif.pcaica <- function(data, y, pca, ica,
           pls.class <- predict(fit, x.test, type = "class")
           pls.prob  <- predict(fit, x.test, type = "prob")
           ## probability of second level (class "1")
-          pred_prob <- pls.prob[, 2]
+          pred_prob <- pls.prob[, 2, 1]
           ce_vec[f] <- mean(pls.class != y.test_fac)
           
         }

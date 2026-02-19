@@ -1,6 +1,6 @@
 classif.wavFeatExt <- function(data, y, det, sca,
                                method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
-                               k = 5L,
+                               k = 5,
                                ite = length(data),
                                all = FALSE) {
   
@@ -44,7 +44,6 @@ classif.wavFeatExt <- function(data, y, det, sca,
   ite <- as.integer(ite)
   if (ite < 1L) stop("'ite' must be a positive integer.")
   
-  ## helper: gabungkan semua coef (detail+scaling) dari seluruh skala
   combine_all_coef <- function(det_one, sca_one) {
     mats <- c(det_one, sca_one)
     mats <- lapply(mats, function(m) as.matrix(m))
@@ -53,14 +52,12 @@ classif.wavFeatExt <- function(data, y, det, sca,
     do.call(cbind, mats)
   }
   
-  ## --- tentukan jumlah fitur sesuai mode ---
   if (!isTRUE(all)) {
     n.features <- l.det + l.sca + 1L
     det_names <- paste0("D", seq_len(l.det))
     sca_names <- paste0("S", seq_len(l.sca))
     feat_names <- c(det_names, sca_names, "seg")
   } else {
-    ## ONLY: ALL (gabungan semua detail+scaling) + seg (pembanding)
     n.features <- 2L
     feat_names <- c("ALL", "seg")
   }
@@ -159,9 +156,12 @@ classif.wavFeatExt <- function(data, y, det, sca,
         } else if (method == "PLS") {
           
           fit <- caret::plsda(x.train, y.train_fac, ncomp = 1)
+          
           pls.class <- predict(fit, x.test, type = "class")
           pls.prob  <- predict(fit, x.test, type = "prob")
-          pred_prob <- pls.prob[, 2]
+          
+          pred_prob <- pls.prob[,2,1]
+          
           ce_vec[f] <- mean(pls.class != y.test_fac)
           
         } else {
