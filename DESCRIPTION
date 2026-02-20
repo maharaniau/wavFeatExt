@@ -30,14 +30,12 @@ Imports:
     pROC,
     neuralnet,
     e1071,
-    miscTools,
     class,
     caret,
     ica,
     stats,
     graphics,
     utils,
-    class,
     pls,
     matrixStats
 Suggests:

@@ -1,3 +1,4 @@
+#' @export
 sim.CNA <- function(n.obs      = 100,
                     p          = 1024,
                     n.sim      = 1,

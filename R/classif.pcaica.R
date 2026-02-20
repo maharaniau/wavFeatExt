@@ -1,3 +1,4 @@
+#' @export
 classif.pcaica <- function(data, y, pca, ica,
                            method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
                            k = 5,

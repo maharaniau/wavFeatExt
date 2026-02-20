@@ -1,3 +1,4 @@
+#' @export
 CBS <- function(obj, chr = rep(1L, length(obj))) {
   CNA.obj <- CNA(obj, chrom = chr, maploc = seq_along(obj), data.type = "binary")
   seg.obj <- segment(CNA.obj)

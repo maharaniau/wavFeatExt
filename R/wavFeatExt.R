@@ -1,3 +1,4 @@
+#' @export
 wavFeatExt <- function(data, type = c("detail", "scaling")) {
   # Feature extraction using non-decimated Haar wavelet transform (NHWT)
   # data: matrix, list of matrices, or output from sim.CNA()

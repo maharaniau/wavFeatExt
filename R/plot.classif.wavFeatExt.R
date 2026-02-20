@@ -1,3 +1,77 @@
+#' Plot classification results from `classif.wavFeatExt`
+#'
+#' Create boxplots of cross-validated performance measures (classification
+#' error or AUC) for wavelet-based feature sets used in [classif.wavFeatExt()],
+#' namely detail and scaling coefficients, and the original/segmented data.
+#'
+#' @param x The result object returned by [classif.wavFeatExt()], containing at
+#'   least the components `CE`, `AUC`, and `method`.
+#'
+#' @param type Character string specifying which performance measure to plot.
+#'   One of `"CE"` for misclassification error, or `"AUC"` for the area under
+#'   the ROC curve.
+#'
+#' @param adjust Logical flag reserved for future extensions of the plotting
+#'   function. Currently not used.
+#'
+#' @param ... Additional graphical parameters passed to [graphics::boxplot()].
+#'
+#' @details
+#' It is assumed that [classif.wavFeatExt()] assigns column names to its `CE`
+#' and `AUC` matrices as follows:
+#' * Columns beginning with `"D"` (e.g., `"D1"`, `"D2"`, ...) correspond to
+#'   wavelet detail coefficients at different scales.
+#' * Columns beginning with `"S"` (e.g., `"S1"`, `"S2"`, ...) correspond to
+#'   wavelet scaling coefficients at different scales.
+#' * The column named `"seg"` corresponds to the original (or segmented) data
+#'   matrix.
+#'
+#' The corresponding columns are extracted and displayed as boxplots, where each
+#' box summarises the distribution of cross-validated performance (CE or AUC)
+#' across replications for a given feature set.
+#'
+#' Two horizontal reference lines are added:
+#' * A red dashed line at the median performance of the `"seg"` feature set.
+#' * A blue dotted line at the best median performance among all feature sets
+#'   plotted (maximum median AUC or minimum median CE).
+#'
+#' @return This function is called for its side effect of producing a plot and
+#'   returns `invisible(NULL)`.
+#'
+#' @author
+#' Maharani Ahsani Ummi
+#'
+#' @seealso
+#' [classif.wavFeatExt()],
+#' [classif.pcaica()],
+#' [wavFeatExt()],
+#' [sim.CNA()]
+#'
+#' @examples
+#' ## Generating simulated CNA data
+#' set.seed(10)
+#' sim.dat10 <- sim.CNA(n.sim = 10)
+#'
+#' ## Obtain detail and scaling coefficients
+#' det.coef.10 <- wavFeatExt(sim.dat10, type = "detail")
+#' sca.coef.10 <- wavFeatExt(sim.dat10, type = "scaling")
+#'
+#' ## Binary response
+#' y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
+#'
+#' ## Classification using Lasso
+#' res <- classif.wavFeatExt(sim.dat10, y,
+#'                           det.coef.10, sca.coef.10,
+#'                           method = "lasso", k = 5)
+#'
+#' ## Plot classification error for all feature sets
+#' plot(res, type = "CE")
+#'
+#' ## Plot AUC for all feature sets
+#' plot(res, type = "AUC")
+#'
+#' @keywords hplot classification wavelets
+#' @export
 plot.classif.wavFeatExt <- function(x,
                                     type   = c("CE", "AUC"),
                                     adjust = TRUE,  # reserved

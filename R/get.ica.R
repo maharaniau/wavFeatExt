@@ -1,3 +1,4 @@
+#' @export
 get.ica <- function(x, k, ...) {
   
   if (missing(k) || length(k) != 1L || k < 2L) {

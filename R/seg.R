@@ -1,3 +1,4 @@
+#' @export
 seg <- function(test.noise, denoise = "CBS") {
   if (!is.matrix(test.noise)) {
     test.noise <- as.matrix(test.noise)

@@ -1,3 +1,4 @@
+#' @export
 nhwt <- function(data, type = c("detail", "scaling")) {
   # Non-decimated Haar wavelet transform (stationary transform)
   # Legacy function, kept for compatibility with older code.

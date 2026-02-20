@@ -7,85 +7,115 @@ Classification on Wavelet-based Features
 Performs classification using several machine learning methods on
 features extracted via non-decimated Haar wavelet transformation,
 namely detail and scaling coefficients, as well as on the original
-(or segmented) data matrix.
+(or segmented) data matrix. Optionally, all wavelet coefficients can be
+combined into a single feature set.
 }
 \usage{
-classif.wavFeatExt(data, y, det, sca, method, k, ite = length(data))
+classif.wavFeatExt(data, y, det, sca,
+                   method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
+                   k = 5,
+                   ite = length(data),
+                   all = FALSE)
 }
 \arguments{
   \item{data}{
-    Either a list of numeric matrices (rows = observations, columns =
-    variables), or the output from \code{\link{sim.CNA}}. Each element
-    of the list corresponds to one data set or replicate.
+    A non-empty list of numeric matrices with equal number of rows
+    (rows = observations, columns = variables). Each element of the list
+    corresponds to one data set / replicate (simulation).
   }
   \item{y}{
     Response vector for the classification task, of length equal to
     the number of rows in \code{data[[1]]}. It must be either a binary
-    numeric vector coded as \code{0} and \code{1} or a binary factor
-    with two levels.
+    numeric vector coded as \code{0} and \code{1}, or a binary factor
+    with exactly two levels. Internally, both a factor and a 0/1 numeric
+    version are created.
   }
   \item{det}{
     Detail coefficients of \code{data}, typically obtained by
-    \code{\link{wavFeatExt}(data, type = "detail")}. It must be a list
-    of the same length as \code{data}; for each data set, the
-    corresponding element is a list of matrices, one per wavelet scale.
+    \code{\link{wavFeatExt}(data, type = "detail")}. Must be a list of
+    the same length as \code{data}; for each data set, the corresponding
+    element is a list of matrices, one per wavelet scale.
   }
   \item{sca}{
     Scaling coefficients of \code{data}, typically obtained by
-    \code{\link{wavFeatExt}(data, type = "scaling")}. It must be a list
-    of the same length as \code{data}; for each data set, the
-    corresponding element is a list of matrices, one per wavelet scale.
+    \code{\link{wavFeatExt}(data, type = "scaling")}. Must be a list of
+    the same length as \code{data}; for each data set, the corresponding
+    element is a list of matrices, one per wavelet scale.
   }
   \item{method}{
     Character string specifying the classification method to use.
-    One of \code{"lasso"} for Lasso logistic regression,
-    \code{"elnet"} for elastic net, \code{"RF"} for random forest,
-    \code{"NN"} for neural network, \code{"PLS"} for partial least
-    squares, or \code{"KNN"} for k-nearest neighbours.
+    One of \code{"lasso"} (Lasso logistic regression via \pkg{glmnet}),
+    \code{"elnet"} (elastic net via \pkg{glmnet}, \code{alpha = 0.5}),
+    \code{"RF"} (random forest via \pkg{randomForest}),
+    \code{"NN"} (feed-forward neural network via \pkg{neuralnet}),
+    \code{"PLS"} (PLS-DA via \pkg{caret} \code{plsda}),
+    or \code{"KNN"} (k-nearest neighbours via \pkg{caret} \code{knn3}).
   }
   \item{k}{
-    Number of folds for k-fold cross-validation. Default is 5.
-    The number of observations must be divisible by \code{k}.
+    Number of folds for k-fold cross-validation (default \code{5}).
+    The number of observations \code{nrow(data[[1]])} must be
+    divisible by \code{k} because the implementation uses equal-sized
+    folds.
   }
   \item{ite}{
-    Number of cross-validation replications. The default is
-    \code{length(data)}, i.e. one replication per data set in the
-    list.
+    Number of cross-validation replications (default \code{length(data)}).
+    For replication \code{i}, the function uses data set
+    \code{((i - 1) \%\% length(data)) + 1} when \code{length(data) > 1}.
+    If \code{length(data) == 1}, the single data matrix is reused for
+    all replications.
+  }
+  \item{all}{
+    Logical; if \code{FALSE} (default), each wavelet scale is evaluated
+    separately (all detail scales, all scaling scales) plus the
+    original/segmented matrix (\code{"seg"}).
+    If \code{TRUE}, all wavelet coefficients (all detail + all scaling)
+    are concatenated into a single feature set (\code{"ALL"}), and the
+    original/segmented matrix (\code{"seg"}) is evaluated as the second
+    feature set.
   }
 }
 \details{
-For each replication, the function constructs a k-fold cross-validation
-partition of the observations in \code{data[[1]]}. For every feature
-set considered (all wavelet detail feature sets, all wavelet scaling
-feature sets, and the original/segmented data matrix), the chosen
-classification method is trained on the training folds and evaluated
-on the held-out fold.
+For each replication, the function randomly assigns observations to
+\code{k} folds of equal size. For every feature set considered, the
+chosen classification method is trained on the training folds and
+evaluated on the held-out fold.
 
-The cross-validated misclassification error (CE) and area under the
-ROC curve (AUC) are computed for each fold and then averaged across
-folds. This procedure is repeated for \code{ite} replications, and
-the resulting averages are stored in matrices for CE and AUC.
+The misclassification error (CE) is computed as the proportion of
+incorrect predicted classes on the test fold. In addition, the area
+under the ROC curve (AUC) is computed from the predicted class
+probabilities using \pkg{pROC}.
 
-The columns of the output matrices correspond to the feature sets
-used: the first \code{length(det[[1]])} columns to wavelet detail
-feature sets, the next \code{length(sca[[1]])} columns to wavelet
-scaling feature sets, and the final column to the original/segmented
-data matrix (labelled \code{"seg"}).
+Fold-wise CE and AUC are averaged across the \code{k} folds to obtain
+one CE and one AUC per feature set and replication. This is repeated
+for \code{ite} replications, producing two matrices (CE and AUC).
+
+\strong{Feature sets and column names:}
+\itemize{
+  \item If \code{all = FALSE}: columns correspond to
+    \code{D1, D2, ..., Dq} (detail scales),
+    then \code{S1, S2, ..., Sp} (scaling scales),
+    and the final column \code{"seg"} (the original/segmented matrix).
+    Here \code{q = length(det[[1]])} and \code{p = length(sca[[1]])}.
+  \item If \code{all = TRUE}: columns are \code{"ALL"} (all wavelet
+    coefficients combined) and \code{"seg"}.
+}
 }
 \value{
-A list with the following components:
+An object of class \code{"classif.wavFeatExt"}, a list with components:
 \item{CE}{
   Numeric matrix of cross-validated misclassification errors.
-  Rows correspond to replications (of length \code{ite}) and
-  columns to feature sets (wavelet detail features, wavelet
-  scaling features, and the original/segmented data).
+  Rows correspond to replications (\code{ite}) and columns to feature
+  sets (see Details for column naming).
 }
 \item{AUC}{
-  Numeric matrix of cross-validated areas under the ROC curve.
-  The dimensions and column names match those of \code{CE}.
+  Numeric matrix of cross-validated AUC values.
+  Dimensions and column names match those of \code{CE}.
 }
 \item{method}{
   Character string giving the classification method used.
+}
+\item{all}{
+  Logical indicating whether \code{all = TRUE} was used.
 }
 }
 \references{
@@ -122,6 +152,10 @@ y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
 ## Perform classification using Lasso
 res <- classif.wavFeatExt(sim.dat2, y, det.coef, sca.coef,
                           method = "lasso", k = 5, ite = 2)
+
+## Combine all wavelet coefficients into one feature set
+res.all <- classif.wavFeatExt(sim.dat2, y, det.coef, sca.coef,
+                              method = "RF", k = 5, ite = 2, all = TRUE)
 ## End(Not run)
 }
 \keyword{classification}

@@ -1,3 +1,4 @@
+#' @export
 classif.wavFeatExt <- function(data, y, det, sca,
                                method = c("lasso", "elnet", "RF", "NN", "PLS", "KNN"),
                                k = 5,

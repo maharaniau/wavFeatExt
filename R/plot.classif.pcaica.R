@@ -1,3 +1,81 @@
+#' Plot classification results from `classif.pcaica`
+#'
+#' Create boxplots of cross-validated performance measures (classification
+#' error or AUC) for the feature sets used in [classif.pcaica()], namely
+#' PCA-based, ICA-based, and original/segmented data features.
+#'
+#' @param x The result object returned by [classif.pcaica()], containing the
+#'   components `CE`, `AUC`, and `method`.
+#'
+#' @param type Character string specifying which performance measure to plot.
+#'   One of `"CE"` for misclassification error or `"AUC"` for the area under
+#'   the ROC curve.
+#'
+#' @param d.type Character string indicating which feature types to include
+#'   in the plot. The default `"both"` shows results for both PCA-based and
+#'   ICA-based features as well as the original/segmented data. Option `"PCA"`
+#'   includes only PCA-based features and the original/segmented data, whereas
+#'   `"ICA"` includes only ICA-based features and the original/segmented data.
+#'
+#' @param adjust Logical flag reserved for future extensions of the plotting
+#'   function. Currently not used.
+#'
+#' @param ... Additional graphical parameters passed to [graphics::boxplot()].
+#'
+#' @details
+#' This function assumes that [classif.pcaica()] has assigned column names to
+#' its `CE` and `AUC` matrices, with prefixes `"PC"` for PCA-based features,
+#' `"I"` for ICA-based features, and the column name `"seg"` for the original
+#' (or segmented) data matrix.
+#'
+#' The corresponding columns are extracted according to `d.type` and displayed
+#' as boxplots: each box summarises the distribution of cross-validated
+#' performance (CE or AUC) across replications for a given feature set.
+#'
+#' In addition, two horizontal reference lines are drawn:
+#' * The red dashed line shows the median performance of the `"seg"` feature
+#'   set (original/segmented data).
+#' * The blue dotted line shows the best median performance among all feature
+#'   sets plotted (maximum median AUC or minimum median CE).
+#'
+#' @return This function is used for its side effect of producing a plot and
+#'   returns `invisible(NULL)`.
+#'
+#' @author
+#' Maharani Ahsani Ummi
+#'
+#' @seealso
+#' [classif.pcaica()],
+#' [classif.wavFeatExt()],
+#' [sim.CNA()],
+#' [get.pca()],
+#' [get.ica()]
+#'
+#' @examples
+#' set.seed(10)
+#'
+#' ## Simulate CNA data
+#' sim.dat10 <- sim.CNA(n.sim = 10)
+#'
+#' ## Obtain PCA and ICA features
+#' pca <- get.pca(sim.dat10, k = 10)
+#' ica <- get.ica(sim.dat10, k = 10)
+#'
+#' ## Binary response
+#' y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
+#'
+#' ## Classification using Lasso
+#' res <- classif.pcaica(sim.dat10, y, pca, ica,
+#'                       method = "lasso", k = 5)
+#'
+#' ## Plot classification error (all feature types)
+#' plot(res, type = "CE")
+#'
+#' ## Plot AUC, PCA features + segmented only
+#' plot(res, type = "AUC", d.type = "PCA")
+#'
+#' @keywords hplot classification
+#' @export
 plot.classif.pcaica <- function(x,
                                 type  = c("CE", "AUC"),
                                 d.type = c("both", "PCA", "ICA"),
