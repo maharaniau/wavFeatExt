@@ -20,7 +20,7 @@ seg <- function(test.noise, denoise = "CBS") {
   test.seg <- matrix(NA_real_, nrow.x, n)
   
   for (i in seq_len(nrow.x)) {
-    test.seg[i, ] <- DNAcopy::CBS(test.noise[i, ], chr = rep(1L, n))
+    test.seg[i, ] -> DNAcopy::CBS(test.noise[i, ], chr = rep(1L, n))
   }
   
   test.seg
