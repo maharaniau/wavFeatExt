@@ -1,7 +1,7 @@
 #' @export
 CBS <- function(obj, chr = rep(1L, length(obj))) {
-  CNA.obj <- CNA(obj, chrom = chr, maploc = seq_along(obj), data.type = "binary")
-  seg.obj <- segment(CNA.obj)
+  CNA.obj <- DNAcopy::CNA(obj, chrom = chr, maploc = seq_along(obj), data.type = "binary")
+  seg.obj <- DNAcopy::segment(CNA.obj)
   num.seg <- length(seg.obj$segRows$startRow)
   cbs.seg <- numeric(length(obj))
   for (k in seq_len(num.seg)) {
