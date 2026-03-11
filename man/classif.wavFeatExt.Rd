@@ -137,7 +137,6 @@ Maharani Ahsani Ummi and Arief Gusnanto
 \code{\link{nhwt}}
 }
 \examples{
-## Not run:
 ## Generating simulated CNA data
 set.seed(10)
 sim.dat2 <- sim.CNA(n.sim = 2)  # two simulated data sets
@@ -149,13 +148,10 @@ sca.coef <- wavFeatExt(sim.dat2, type = "scaling")
 ## Binary response (for example, first 50 vs last 50 samples)
 y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
 
-## Perform classification using Lasso
+## Perform classification using k-nearest neighbours
 res <- classif.wavFeatExt(sim.dat2, y, det.coef, sca.coef,
-                          method = "lasso", k = 5, ite = 2)
+                          method = "KNN", k = 5, ite = 2)
 
-## Combine all wavelet coefficients into one feature set
-res.all <- classif.wavFeatExt(sim.dat2, y, det.coef, sca.coef,
-                              method = "RF", k = 5, ite = 2, all = TRUE)
 ## End(Not run)
 }
 \keyword{classification}

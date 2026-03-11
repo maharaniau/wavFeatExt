@@ -112,10 +112,9 @@ Maharani Ahsani Ummi and Arief Gusnanto
 \code{\link{classif.wavFeatExt}}
 }
 \examples{
-## Not run:
 ## Generating simulated CNA data
 set.seed(10)
-sim.dat10 <- sim.CNA(n.sim = 10)
+sim.dat10 <- sim.CNA(n.sim = 2)
 
 ## Obtain PCA and ICA feature sets with 10 components
 pca <- get.pca(sim.dat10, k = 10)
@@ -124,9 +123,9 @@ ica <- get.ica(sim.dat10, k = 10)
 ## Binary response (for example, first 50 vs last 50 samples)
 y <- factor(c(rep("Group1", 50), rep("Group2", 50)))
 
-## Perform classification using Lasso
+## Perform classification using k-nearest neighbour
 res <- classif.pcaica(sim.dat10, y, pca, ica,
-                      method = "lasso", k = 5)
+                      method = "KNN", k = 5)
 ## End(Not run)
 }
 \keyword{classification}

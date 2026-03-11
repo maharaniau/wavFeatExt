@@ -81,13 +81,6 @@ det.coef <- wavFeatExt(sim.dat, type = "detail")
 ## Extract scaling coefficients
 sca.coef <- wavFeatExt(sim.dat, type = "scaling")
 
-## Not run:
-## Generate 10 simulated data sets (this may take some time)
-sim.dat10 <- sim.CNA(n.sim = 10)
-
-## Obtain detail coefficients for all simulated data sets
-det.coef.10 <- wavFeatExt(sim.dat10, type = "detail")
-## End(Not run)
 }
 \keyword{feature extraction}
 \keyword{wavelets}
